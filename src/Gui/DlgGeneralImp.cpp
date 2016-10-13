@@ -123,6 +123,11 @@ void DlgGeneralImp::saveSettings()
     App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/General")->
                           SetASCII("AutoloadModule", startWbName.toLatin1());
     
+
+	data = StartDirectoryCombo->itemData(StartDirectoryCombo->currentIndex());
+    App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/General")->
+                          SetASCII("StartDirectory", data.toString().toLatin1());
+
     AutoloadTabCombo->onSave();
     RecentFiles->onSave();
     SplashScreen->onSave();
@@ -199,6 +204,17 @@ void DlgGeneralImp::loadSettings()
     AutoloadTabCombo->onRestore();
     RecentFiles->onRestore();
     SplashScreen->onRestore();
+	
+	// Options for start directory
+	StartDirectoryCombo->addItem(tr("Auto"), QByteArray("Auto"));
+	StartDirectoryCombo->addItem(tr("Last used"), QByteArray("Recent"));
+	StartDirectoryCombo->addItem(tr("Current working directory"), QByteArray("PWD"));
+
+
+    std::string start_dir = App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/General")->
+                                  GetASCII("StartDirectory", "Auto");
+    QString startDir = QLatin1String(start_dir.c_str());
+    StartDirectoryCombo->setCurrentIndex(StartDirectoryCombo->findData(startDir));
 
     // fill up styles
     //

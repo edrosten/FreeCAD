@@ -117,6 +117,7 @@
 #include "Language/Translator.h"
 #include "TaskView/TaskDialogPython.h"
 #include <Gui/Quarter/Quarter.h>
+#include <Gui/FileDialog.h>
 #include "View3DViewerPy.h"
 #include "ViewProviderGroupExtension.h"
 #include "GuiInitScript.h"
@@ -1712,6 +1713,48 @@ void Application::runApplication(void)
     // 1. it shows a white window for a few seconds which doesn't look nice
     // 2. the layout of the toolbars is completely broken
     app.activateWorkbench(start.c_str());
+	
+	
+	// Set the initial load/save directory
+	std::string start_dir =  App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/General")->
+                                  GetASCII("StartDirectory", "Auto");
+	if(start_dir == "PWD")
+	{
+		//setWorkingDirectory assumes a filename, so append a dummy file name to the directory
+		FileDialog::setWorkingDirectory(QDir::current().filePath(QString::fromAscii("dummy")));
+		Base::Console().Log("Init: Setting load/save directory to PWD: %s\n", QDir::currentPath().toStdString().c_str());
+
+	}
+	else if(start_dir == "Recent")
+	{
+		//Nothing to do here, it will just pick it up from the preferences
+		Base::Console().Log("Init: Setting load/save from prefs\n");
+	}
+	else
+	{
+		//If it's a bad entry, set the default to "Auto"
+		if(start_dir != "Auto")
+			App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/General")->
+                                  SetASCII("StartDirectory", "Auto");
+		
+		Base::Console().Log("Init: Setting load/save automatically\n");
+		if(QDir::currentPath() == QDir::homePath())
+		{
+			//This means FreeCAD was likely started from a GUI, making the CWD
+			//meaningless. So, do nothing and pick up the most recent directory
+			//from the preferences
+			Base::Console().Log("Init: Setting load/save from prefs\n");
+		}
+		else
+		{
+			FileDialog::setWorkingDirectory(QDir::current().filePath(QString::fromAscii("dummy")));
+			Base::Console().Log("Init: Setting load/save directory to PWD: %s\n", QDir::currentPath().toStdString().c_str());
+		}
+	}
+
+
+	Base::Console().Log("Init: load/save directory: %s\n", FileDialog::getWorkingDirectory().toStdString().c_str());
+	
 
     // show the main window
     if (!hidden) {
