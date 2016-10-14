@@ -1738,6 +1738,9 @@ void Application::runApplication(void)
                                   SetASCII("StartDirectory", "Auto");
 		
 		Base::Console().Log("Init: Setting load/save automatically\n");
+		Base::Console().Log("Init: Home path is %s\n", QDir::homePath().toStdString().c_str());
+		Base::Console().Log("Init: Application path is %s\n", QApplication::applicationDirPath().toStdString().c_str());
+		Base::Console().Log("Init: Current working directory is %s\n", QDir::currentPath().toStdString().c_str());
 		if(QDir::currentPath() == QDir::homePath())
 		{
 			//This means FreeCAD was likely started from a GUI, making the CWD
